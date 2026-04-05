@@ -1,0 +1,33 @@
+{
+  "name": "teltonika-sms-gateway-sdk",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for Teltonika SMS Gateway API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "teltonika",
+    "sms",
+    "gateway",
+    "sdk",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "superagent": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/superagent": "^8.1.0",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

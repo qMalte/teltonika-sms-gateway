@@ -1,0 +1,73 @@
+services:
+  sms-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sms-gateway
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - ROUTER_HOST=${ROUTER_HOST}
+      - ROUTER_USERNAME=${ROUTER_USERNAME}
+      - ROUTER_PASSWORD=${ROUTER_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - API_KEYS_PATH=/app/config/api-keys.yaml
+      - SMS_QUEUE_CONCURRENCY=${SMS_QUEUE_CONCURRENCY:-1}
+      - SMS_QUEUE_DELAY_MS=${SMS_QUEUE_DELAY_MS:-1000}
+    volumes:
+      - ./config/api-keys.yaml:/app/config/api-keys.yaml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - sms-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: sms-gateway-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 128mb
+      --maxmemory-policy noeviction
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    volumes:
+      - redis-data:/data
+    networks:
+      - sms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  sms-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local

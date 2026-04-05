@@ -1,0 +1,20 @@
+apiKeys:
+  - key: "sk-test-key-12345"
+    name: "Test Service"
+    allowedIps:
+      - "127.0.0.1"
+      - "::1"
+      - "10.0.0.0/8"
+      - "192.168.0.0/16"
+    enabled: true
+    rateLimit:
+      maxRequests: 10
+      windowSeconds: 60
+
+  - key: "sk-production-key-67890"
+    name: "Production Service"
+    allowedIps: []
+    enabled: true
+    rateLimit:
+      maxRequests: 100
+      windowSeconds: 3600
