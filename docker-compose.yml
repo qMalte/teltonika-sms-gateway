@@ -1,8 +1,6 @@
 services:
   sms-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/qMalte/teltonika-sms-gateway:latest
     container_name: sms-gateway
     restart: unless-stopped
     ports:
