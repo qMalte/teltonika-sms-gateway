@@ -38,6 +38,8 @@ async function bootstrap() {
 
   await app.listen(port);
   console.log(`SMS Gateway running on http://localhost:${port}`);
-  console.log(`Swagger documentation available at http://localhost:${port}/api`);
+  console.log(
+    `Swagger documentation available at http://localhost:${port}/api`,
+  );
 }
-bootstrap();
+void bootstrap();

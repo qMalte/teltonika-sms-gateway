@@ -4,7 +4,11 @@ import {
   ExecutionContext,
   BadRequestException,
 } from '@nestjs/common';
-import { Request } from 'express';
+
+interface SmsRequest {
+  body?: { number?: string };
+  query?: { number?: string };
+}
 
 // Premium- und Mehrwertnummern-Präfixe
 const PREMIUM_PREFIXES = [
@@ -261,10 +265,10 @@ const BLOCKED_TEST_NUMBERS = [
 @Injectable()
 export class PremiumNumberGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<Request>();
-    const number = request.body?.number || request.query?.number;
+    const request = context.switchToHttp().getRequest<SmsRequest>();
+    const number = request.body?.number ?? request.query?.number;
 
-    if (!number) {
+    if (!number || typeof number !== 'string') {
       return true;
     }
 
@@ -306,7 +310,7 @@ export class PremiumNumberGuard implements CanActivate {
   }
 
   private normalizeNumber(number: string): string {
-    return number.replace(/[\s\-\(\)]/g, '');
+    return number.replace(/[\s\-()]/g, '');
   }
 
   private isShortCode(number: string): boolean {

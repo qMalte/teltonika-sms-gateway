@@ -7,17 +7,17 @@ import {
   Inject,
 } from '@nestjs/common';
 import Redis from 'ioredis';
-import { Request, Response } from 'express';
-import { ApiKeyConfig } from '../config/api-keys.config';
+import { Response } from 'express';
+import { AuthenticatedRequest } from './request.interface';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(@Inject('REDIS_CLIENT') private redis: Redis) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const response = context.switchToHttp().getResponse<Response>();
-    const apiKeyConfig: ApiKeyConfig | undefined = (request as any).apiKeyConfig;
+    const apiKeyConfig = request.apiKeyConfig;
 
     if (!apiKeyConfig) {
       return true;
@@ -37,7 +37,10 @@ export class RateLimitGuard implements CanActivate {
 
     response.setHeader('X-RateLimit-Limit', rateLimit.maxRequests.toString());
     response.setHeader('X-RateLimit-Remaining', remaining.toString());
-    response.setHeader('X-RateLimit-Reset', (Date.now() + ttl * 1000).toString());
+    response.setHeader(
+      'X-RateLimit-Reset',
+      (Date.now() + ttl * 1000).toString(),
+    );
 
     if (current > rateLimit.maxRequests) {
       throw new HttpException(

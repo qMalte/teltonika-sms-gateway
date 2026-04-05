@@ -9,6 +9,8 @@ export function ApiKeyAuth() {
   return applyDecorators(
     ApiSecurity('X-API-Key'),
     ApiUnauthorizedResponse({ description: 'Invalid or missing API key' }),
-    ApiForbiddenResponse({ description: 'IP address not allowed for this API key' }),
+    ApiForbiddenResponse({
+      description: 'IP address not allowed for this API key',
+    }),
   );
 }
